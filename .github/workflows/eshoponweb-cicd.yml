@@ -1,20 +1,35 @@
 name: eShopOnWeb Build and Test
 
 #Triggers (uncomment line below to use it)
-#on: [push, workflow_dispatch]
+on: [push, workflow_dispatch]
 
 #Environment variables https://docs.github.com/en/actions/learn-github-actions/environment-variables
 env:
-  RESOURCE-GROUP: rg-az400-eshoponweb-NAME
+  RESOURCE-GROUP: ${{ steps.initialilze-resource-group.outputs.name }}
   LOCATION: westeurope
   TEMPLATE-FILE: .azure/bicep/webapp.bicep
-  SUBSCRIPTION-ID: YOUR-SUBS-ID
+  SUBSCRIPTION-ID: ${{ steps.initialilze-subscription-id.outputs.name }}
   WEBAPP-NAME: az400-webapp-NAME
 
 
 jobs:
+  initializeEnvSecrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use my secret
+        id: initialilze-subscription-id
+        run: |
+          SUBSCRIPTION_ID=$(echo '${{ secrets.AZURE_COMMON }}' | jq -r '.subscription_id')
+          echo "::set-output name=name::$SUBSCRIPTION_ID"
+      - name: Use my secret
+        id: initialilze-resource-group
+        run: |
+          RESOURCE_GROUP=$(echo '${{ secrets.AZURE_COMMON }}' | jq -r '.resource_group')
+          echo "::set-output name=name::$RESOURCE_GROUP"
+        
   #Build, test and publish .net web project in repository
   buildandtest:
+    needs: initializeEnvSecrets
     runs-on: ubuntu-latest
     steps:
     #checkout the repository
