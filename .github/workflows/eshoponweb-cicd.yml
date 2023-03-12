@@ -5,14 +5,14 @@ on: [push, workflow_dispatch]
 
 #Environment variables https://docs.github.com/en/actions/learn-github-actions/environment-variables
 env:
-  RESOURCE-GROUP: "`echo '${{ secrets.AZURE_COMMON }}' | jq -r '.resource_group'`"
+  RESOURCE-GROUP: rg-az400-eshoponweb-NAME 
   LOCATION: westeurope
   TEMPLATE-FILE: .azure/bicep/webapp.bicep
-  SUBSCRIPTION-ID: "`echo '${{ secrets.AZURE_COMMON }}' | jq -r '.subscription_id'`"
+  SUBSCRIPTION-ID: ${{ secrets.AZURE_SUBSCRIPTION_KEY }}
   WEBAPP-NAME: az400-webapp-NAME
 
 
-jobs:
+jobs: 
   #Build, test and publish .net web project in repository
   buildandtest:
     runs-on: ubuntu-latest
