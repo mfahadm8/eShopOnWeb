@@ -5,31 +5,16 @@ on: [push, workflow_dispatch]
 
 #Environment variables https://docs.github.com/en/actions/learn-github-actions/environment-variables
 env:
-  RESOURCE-GROUP: ${{ steps.initialilze-resource-group.outputs.name }}
+  RESOURCE-GROUP: "`echo '${{ secrets.AZURE_COMMON }}' | jq -r '.resource_group'`"
   LOCATION: westeurope
   TEMPLATE-FILE: .azure/bicep/webapp.bicep
-  SUBSCRIPTION-ID: ${{ steps.initialilze-subscription-id.outputs.name }}
+  SUBSCRIPTION-ID: "`echo '${{ secrets.AZURE_COMMON }}' | jq -r '.subscription_id'`"
   WEBAPP-NAME: az400-webapp-NAME
 
 
 jobs:
-  initializeEnvSecrets:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Use my secret
-        id: initialilze-subscription-id
-        run: |
-          SUBSCRIPTION_ID=$(echo '${{ secrets.AZURE_COMMON }}' | jq -r '.subscription_id')
-          echo "::set-output name=name::$SUBSCRIPTION_ID"
-      - name: Use my secret
-        id: initialilze-resource-group
-        run: |
-          RESOURCE_GROUP=$(echo '${{ secrets.AZURE_COMMON }}' | jq -r '.resource_group')
-          echo "::set-output name=name::$RESOURCE_GROUP"
-        
   #Build, test and publish .net web project in repository
   buildandtest:
-    needs: initializeEnvSecrets
     runs-on: ubuntu-latest
     steps:
     #checkout the repository
